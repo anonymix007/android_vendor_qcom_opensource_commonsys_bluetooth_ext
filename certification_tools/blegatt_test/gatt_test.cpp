@@ -672,7 +672,7 @@ static void register_server_cb(int status, int server_if, const Uuid& app_uuid)
     //use shortByteValue byte array for this desc
     service1.push_back(desc11);
 
-    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service1);
+    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service1.data(), service1.size());
     printf("%s:: Ret=%d \n", __FUNCTION__,Ret );
 
 
@@ -826,7 +826,7 @@ static void register_server_cb(int status, int server_if, const Uuid& app_uuid)
     service2.push_back(desc9);
 
 
-    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service2);
+    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service2.data(), service2.size());
     printf("%s:: Ret=%d \n", __FUNCTION__,Ret );
 
 
@@ -872,7 +872,7 @@ static void register_server_cb(int status, int server_if, const Uuid& app_uuid)
     service3.push_back(desc2);
 
 
-    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service3);
+    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service3.data(), service3.size());
     printf("%s:: Ret=%d \n", __FUNCTION__,Ret );
 
 
@@ -894,7 +894,7 @@ static void register_server_cb(int status, int server_if, const Uuid& app_uuid)
     service4.push_back(char1);
 
 
-    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service4);
+    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service4.data(), service4.size());
     printf("%s:: Ret=%d \n", __FUNCTION__,Ret );
 
 
@@ -998,7 +998,7 @@ static void register_server_cb(int status, int server_if, const Uuid& app_uuid)
     //use longByteValue byte array for this desc
     service5.push_back(desc12);
 
-    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service5);
+    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service5.data(), service5.size());
     printf("%s:: Ret=%d \n", __FUNCTION__,Ret );
 
     for(int i=0; i< 512; i++)
@@ -1076,7 +1076,7 @@ static void request_read_cb(int conn_id, int trans_id, const RawAddress& bda,
 
 static void request_write_cb(int conn_id, int trans_id, const RawAddress& bda,
                              int attr_handle, int offset, bool need_rsp,
-                             bool is_prep, std::vector<uint8_t> value)
+                             bool is_prep, const uint8_t* value, size_t value_count)
 {
     printf("%s:: conn_id=%d, trans_id=%d, attr_handle=%d \n", __FUNCTION__, conn_id, trans_id, attr_handle);
     bt_status_t        Ret;
@@ -1090,11 +1090,11 @@ static void request_write_cb(int conn_id, int trans_id, const RawAddress& bda,
     gatt_resp.attr_value.len = 1;
     exec_write_status = BT_STATUS_SUCCESS;
 
-    printf("%s:: value size=%d, offset=%d \n", __FUNCTION__, value.size(), offset);
+    printf("%s:: value size=%d, offset=%d \n", __FUNCTION__, value_count, offset);
 
     if(is_prep)
     {
-        if((value.size()+offset) > len_long_char)
+        if((value_count+offset) > len_long_char)
         {
             printf("%s:: Invalid attribute value length for long char/desc \n", __FUNCTION__);
             exec_write_status = invalid_attribute_value_len;
@@ -1107,35 +1107,36 @@ static void request_write_cb(int conn_id, int trans_id, const RawAddress& bda,
     }
     else
     {
-        if((curr_handle == attr_handle) && ((value.size()+offset) > curr_char_val_len))
+        if((curr_handle == attr_handle) && ((value_count+offset) > curr_char_val_len))
         {
             printf("%s:: Invalid attribute value length for short char/desc \n", __FUNCTION__);
             status = invalid_attribute_value_len;
         }
     }
 
-    for(int i=0; i< value.size(); i++) {
+    for(int i=0; i< value_count; i++) {
         attr_value[i+offset] = value[i];
     }
 
     //Client char configuration descriptor
     if(attr_handle == 43)
     {
-        for(int i=0; i< value.size(); i++) {
+        for(int i=0; i< value_count; i++) {
             cccd_val[i] = value[i];
         }
-        //cccd_value_map.insert(std::make_pair(bda, cccd_val));
-        cccd_value_map[bda] = value;
-        memcpy(gatt_resp.attr_value.value, &cccd_val, value.size());
-        gatt_resp.attr_value.len = value.size();
+        //cccd_value_map.insert(std::make_pair(conn_id, cccd_val));
+        std::vector<uint8_t> value_vec(value, value + value_count);
+        cccd_value_map[bda] = value_vec;
+        memcpy(gatt_resp.attr_value.value, &cccd_val,value_count);
+        gatt_resp.attr_value.len = value_count;
     }
     else
     {
-        memcpy(gatt_resp.attr_value.value, &attr_value[offset] , value.size());
-        gatt_resp.attr_value.len = value.size();
+        memcpy(gatt_resp.attr_value.value, &attr_value[offset] , value_count);
+        gatt_resp.attr_value.len = value_count;
     }
 
-    curr_char_val_len = value.size();
+    curr_char_val_len = value_count;
     curr_handle = attr_handle;
 
     g_conn_id = conn_id;
@@ -3282,7 +3283,7 @@ void do_le_server_add_service(char *p)
     svc2.type = BTGATT_DB_PRIMARY_SERVICE;
     service.push_back(svc2);
 
-    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service);
+    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service.data(), service.size());
     printf("%s:: Ret=%d \n", __FUNCTION__,Ret );
 }
 
@@ -3353,7 +3354,7 @@ void do_le_server_send_indication (char *p)
     attr_handle = get_hex(&p, -1);
     confirm = get_int(&p, -1);
     Ret = sGattIfaceScan->server->send_indication(g_server_if_scan, attr_handle,
-                                                  g_conn_id, confirm, value);
+                                                  g_conn_id, confirm, value.data(), value.size());
     printf("%s:: Ret=%d \n", __FUNCTION__,Ret );
 }
 

@@ -441,7 +441,7 @@ static void register_server_cb(int status, int server_if, const Uuid& app_uuid)
     //use shortByteValue byte array for this desc
     service1.push_back(desc1);
 
-    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service1);
+    Ret = sGattIfaceScan->server->add_service(g_server_if_scan, service1.data(), service1.size());
     printf("%s:: Ret=%d \n", __FUNCTION__,Ret );
 }
 
