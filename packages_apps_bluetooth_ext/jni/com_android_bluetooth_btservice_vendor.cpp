@@ -119,9 +119,13 @@ static int32_t property_get_int32_callout(const char* key, int32_t default_value
     return property_get_int32(key, default_value);
 }
 
+static bool property_get_bool_callout(const char* key, bool default_value) {
+    return property_get_bool(key, default_value);
+}
+
 static bt_property_callout_t sBluetoothPropertyCallout = {
     sizeof(sBluetoothPropertyCallout), property_set_callout,
-    property_get_callout, property_get_int32_callout,
+    property_get_callout, property_get_int32_callout, property_get_bool_callout
 };
 
 static void bredr_cleanup_callback(bool status){
