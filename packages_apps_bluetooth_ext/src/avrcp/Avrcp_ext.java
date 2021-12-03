@@ -48,6 +48,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
+import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
 import android.media.MediaDescription;
 import android.media.MediaMetadata;
@@ -5437,7 +5439,10 @@ public final class Avrcp_ext {
             VolumeManagerIntf mVolumeManager = VolumeManagerIntf.get();
             mVolumeManager.setAbsoluteVolumeSupport(device, isSupported, ApmConstIntf.AudioProfiles.AVRCP);
         } else {
-            mAudioManager.avrcpSupportsAbsoluteVolume(device.getAddress(), isSupported);
+            mAudioManager.setDeviceVolumeBehavior(new AudioDeviceAttributes(
+                        AudioDeviceAttributes.ROLE_OUTPUT, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
+                        device.getAddress()), isSupported ? AudioManager.DEVICE_VOLUME_BEHAVIOR_ABSOLUTE
+                    : AudioManager.DEVICE_VOLUME_BEHAVIOR_VARIABLE);
         }
     }
 
