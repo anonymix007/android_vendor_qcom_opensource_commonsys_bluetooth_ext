@@ -55,6 +55,9 @@ import android.os.Message;
 import android.util.Log;
 import android.provider.Settings;
 import android.media.AudioManager;
+import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
+import android.media.AudioDeviceInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -674,7 +677,9 @@ public class BATService extends ProfileService {
             //and does not use address.Even if avrcp has updated support as true,
             //we doing it again, should not lead to any issue.
             Log.d(TAG," inform AudioManager for absvol support ");
-            mAudioManager.avrcpSupportsAbsoluteVolume(mBAAddress, true);
+            mAudioManager.setDeviceVolumeBehavior(new AudioDeviceAttributes(
+                        AudioDeviceAttributes.ROLE_OUTPUT, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
+                        mBAAddress), AudioManager.DEVICE_VOLUME_BEHAVIOR_ABSOLUTE);
         }
         // check for transition from PENDING to IDLE
         if((mPrevStackBATState == BA_STACK_STATE_PENDING) &&
@@ -698,7 +703,9 @@ public class BATService extends ProfileService {
             if (!checkAbsVolSupport()) {
                 //Abs vol not supported by AVRCP, we should update false from BA.
                 Log.d(TAG," AbsVol not supported by AVRCP, update false from BA ");
-                mAudioManager.avrcpSupportsAbsoluteVolume(mBAAddress, false);
+                mAudioManager.setDeviceVolumeBehavior(new AudioDeviceAttributes(
+                        AudioDeviceAttributes.ROLE_OUTPUT, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
+                        mBAAddress), AudioManager.DEVICE_VOLUME_BEHAVIOR_VARIABLE);
             }
         }
         // if transition is from AUDIO_PENDING->STREAMING, we need to update volume
