@@ -2251,10 +2251,10 @@ public final class Avrcp_ext {
                                              PlaybackState.PLAYBACK_POSITION_UNKNOWN, 0.0f).build();
 
         boolean updateA2dpPlayState = false;
+        boolean isMusicActive = mAudioManager.isMusicActive();
         Log.v(TAG,"updateCurrentMediaState: mMediaController: " + mMediaController);
 
         synchronized (this) {
-            boolean isMusicActive = mAudioManager.isMusicActive();
             Log.w(TAG,"isMusicActive: " + isMusicActive + " getBluetoothPlayState: "
                   + getBluetoothPlayState(mCurrentPlayerState) + " A2dp State: " + mA2dpState
                   + " mAudioPlaybackIsActive: " + mAudioPlaybackIsActive);
@@ -3353,6 +3353,7 @@ public final class Avrcp_ext {
     public void setAvrcpConnectedDevice(BluetoothDevice device) {
         boolean NeedCheckMusicActive = true;
         boolean rc_only_device = isPeerDeviceAvrcpOnly(device);
+        boolean isMusicActive = mAudioManager.isMusicActive();
         Log.i(TAG,"setAvrcpConnectedDevice, Device added is " + device);
         for (int i = 0; i < maxAvrcpConnections; i++) {
             if (deviceFeatures[i].mCurrentDevice != null) {
@@ -3377,7 +3378,7 @@ public final class Avrcp_ext {
                 deviceFeatures[i].mBlackListVolume = -1;
 
                 Log.i(TAG,"setAvrcpConnectedDevice, mCurrentPlayerState = " + mCurrentPlayerState +
-                          " isMusicActive = " + mAudioManager.isMusicActive() +
+                          " isMusicActive = " + isMusicActive +
                           " isA2dpPlaying = " + mA2dpService.isA2dpPlaying(device) +
                           " is_rc_only_device = " + rc_only_device);
 
@@ -3400,7 +3401,7 @@ public final class Avrcp_ext {
                 }
                 if (!isPlayingState(mCurrentPlayerState) &&
                      (mA2dpService.isA2dpPlaying(device)) &&
-                      ((NeedCheckMusicActive && mAudioManager.isMusicActive()) ||(!NeedCheckMusicActive))) {
+                      ((NeedCheckMusicActive && isMusicActive) ||(!NeedCheckMusicActive))) {
                     /* A2DP playstate updated for video playback scenario, where a2dp play status is
                       updated when avrcp connection was not up yet.*/
                     Log.i(TAG,"A2dp playing device found");
@@ -5469,6 +5470,7 @@ public final class Avrcp_ext {
         BluetoothDevice a2dp_active_device = null;
         boolean skip = false;
         boolean rc_only_device = isPeerDeviceAvrcpOnly(device);
+        boolean isMusicActive = mAudioManager.isMusicActive();
         if (mA2dpService != null) a2dp_active_device = mA2dpService.getActiveDevice();
         Log.d(TAG, "Active device: " + a2dp_active_device);
         if (a2dp_active_device != null) {
@@ -5495,8 +5497,7 @@ public final class Avrcp_ext {
         if (!skip && (mA2dpService != null) && !Objects.equals(a2dp_active_device, device)) {
             Log.w(TAG, "code " + code + " action " + action + " from inactive device");
             if (code == KeyEvent.KEYCODE_MEDIA_PLAY) {
-                if (isPlayingState(mCurrentPlayerState) &&
-                        mAudioManager.isMusicActive() &&
+                if (isPlayingState(mCurrentPlayerState) && isMusicActive &&
                         (mA2dpState == BluetoothA2dp.STATE_PLAYING)) {
                     ignore_play = true;
                     deviceFeatures[deviceIndex].cache_play_cmd = false;
@@ -5542,19 +5543,18 @@ public final class Avrcp_ext {
 
         if (DEBUG) Log.d(TAG, "Avrcp current play state: " +
             getBluetoothPlayState(mCurrentPlayerState) +
-            " isMusicActive: " + mAudioManager.isMusicActive() + " A2dp state: "  + mA2dpState +
+            " isMusicActive: " + isMusicActive + " A2dp state: "  + mA2dpState +
             " Cached passthrough command: " + deviceFeatures[deviceIndex].mLastPassthroughcmd);
         if ((deviceFeatures[deviceIndex].mLastPassthroughcmd == KeyEvent.KEYCODE_UNKNOWN) ||
                     deviceFeatures[deviceIndex].mLastPassthroughcmd == code) {
-            if (((isPlayingState(mCurrentPlayerState) && mAudioManager.isMusicActive()) ||
+            if (((isPlayingState(mCurrentPlayerState) && isMusicActive) ||
                       hasVoiceCommunicationActive()) &&
                      (code == KeyEvent.KEYCODE_MEDIA_PLAY)) {
                  Log.w(TAG, "Ignoring passthrough command play" + op + " state " + state +
                          "in music playing or voice communication");
                  return;
             }
-            if ((!isPlayingState(mCurrentPlayerState)) &&
-                    (!mAudioManager.isMusicActive()) &&
+            if ((!isPlayingState(mCurrentPlayerState)) && (!isMusicActive) &&
                     (mA2dpState == BluetoothA2dp.STATE_NOT_PLAYING) &&
                     (code == KeyEvent.KEYCODE_MEDIA_PAUSE)) {
                 Log.w(TAG, "Ignoring passthrough command pause" + op + " state " + state +
