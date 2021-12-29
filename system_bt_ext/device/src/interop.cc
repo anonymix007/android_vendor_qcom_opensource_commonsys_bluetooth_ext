@@ -668,7 +668,7 @@ static bool interop_database_match_( interop_db_entry_t *entry,
           interop_name_entry_t *cur = &db_entry->entry_type.name_entry;
 
           if ((src->feature == cur->feature) &&
-              (strcasestr(src->name, cur->name) != NULL)) {
+              (strcasestr(src->name, cur->name) == src->name)) {
             if (ret_entry) {
               *ret_entry = db_entry;
             }
