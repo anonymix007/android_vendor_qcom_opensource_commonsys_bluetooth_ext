@@ -2409,8 +2409,8 @@ public final class Avrcp_ext {
             // Notify track changed if:
             //  - The CT is registered for the notification
             //  - Queue ID is UNKNOWN and MediaMetadata is different
-            if (((newQueueId == -1 || newQueueId != mLastQueueId)
-                    && !currentAttributes.equals(mMediaAttributes))) {
+            if ((newQueueId == -1 || newQueueId == 0 || newQueueId != mLastQueueId)
+                    && !currentAttributes.equals(mMediaAttributes)) {
                 Log.v(TAG, "Send track changed");
                 mMediaAttributes = currentAttributes;
                 mLastQueueId = newQueueId;
