@@ -1145,11 +1145,14 @@ static bt_callbacks_t bt_callbacks = {
     pin_request_cb, /* pin_request_cb  */
     ssp_request_cb, /* ssp_request_cb  */
     bond_state_changed_cb, /*bond_state_changed_cb */
+    NULL, /* address_consolidate_cb */
     acl_state_changed, /* acl_state_changed_cb */
     NULL, /* thread_evt_cb */
     dut_mode_recv, /*dut_mode_recv_cb */
     le_test_mode, /* le_test_mode_cb */
-    NULL      /*energy_info_cb*/
+    NULL,      /*energy_info_cb*/
+    NULL, /* link_quality_report_cb */
+    NULL  /* generate_local_oob_data_cb */
 };
 
 static bt_os_callouts_t bt_os_callbacks = {
