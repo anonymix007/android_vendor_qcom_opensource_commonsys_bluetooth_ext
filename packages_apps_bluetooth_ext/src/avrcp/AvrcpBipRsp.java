@@ -35,7 +35,7 @@ import com.android.bluetooth.btservice.AdapterService;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Attributable;
+import android.bluetooth.Attributable;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
