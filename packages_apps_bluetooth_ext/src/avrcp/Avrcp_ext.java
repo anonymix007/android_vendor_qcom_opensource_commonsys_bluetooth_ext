@@ -2295,6 +2295,10 @@ public final class Avrcp_ext {
                 }
             } else {
                 newState = mMediaController.getPlaybackState();
+                int state = getBluetoothPlayState(newState);
+                boolean isPlaying = (state == PLAYSTATUS_PLAYING ||
+                                     state == PLAYSTATUS_FWD_SEEK ||
+                                     state == PLAYSTATUS_REV_SEEK);
                 if (newState != null) {
                     Log.d(TAG, "isMusicActive = " + isMusicActive +" mAudioPlaybackIsActive = "
                             + mAudioPlaybackIsActive + " player state = " + newState);
@@ -2311,8 +2315,8 @@ public final class Avrcp_ext {
                         newState = builder.build();
                     }
                 } else {
-                    if (mAudioPlaybackIsActive && !isPlayingState(newState) &&
-                            (mA2dpState==BluetoothA2dp.STATE_PLAYING)) {
+                    if (mAudioPlaybackIsActive && !isPlaying &&
+                            (mA2dpState == BluetoothA2dp.STATE_PLAYING)) {
                         builder.setState(PlaybackState.STATE_PLAYING, newState.getPosition(), 1.0f);
                         newState = builder.build();
                         Log.d(TAG, "updateCurrentMediaState: updated player state = " + newState);
