@@ -652,7 +652,7 @@ void check_return_status(bt_status_t status)
 static void adapter_state_changed(bt_state_t state)
 {
     int V1 = 1000, V2=2;
-    bt_property_t property = {BT_PROPERTY_ADAPTER_DISCOVERY_TIMEOUT, 4, &V1};
+    bt_property_t property = {BT_PROPERTY_ADAPTER_DISCOVERABLE_TIMEOUT, 4, &V1};
     bt_property_t property1 = {BT_PROPERTY_ADAPTER_SCAN_MODE, 2, &V2};
     bt_property_t property2 ={BT_PROPERTY_BDNAME,6, (void *)"Bluedroid"};
 
