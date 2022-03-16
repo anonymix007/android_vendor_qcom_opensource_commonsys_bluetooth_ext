@@ -73,7 +73,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import javax.obex.ServerSession;
+import com.android.obex.ServerSession;
 
 public class BluetoothPbapFixes {
 

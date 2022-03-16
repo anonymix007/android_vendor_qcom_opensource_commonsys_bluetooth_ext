@@ -47,9 +47,9 @@ import java.util.List;
 import java.util.Collections;
 import java.util.Comparator;
 
-import javax.obex.Operation;
-import javax.obex.ResponseCodes;
-import javax.obex.ServerOperation;
+import com.android.obex.Operation;
+import com.android.obex.ResponseCodes;
+import com.android.obex.ServerOperation;
 
 /**
  * VCard composer especially for Call Log used in Bluetooth.
@@ -407,7 +407,7 @@ public class BluetoothPbapSimVcardManager {
             composer.moveToPosition(startPoint -1, false);
             for (int count =startPoint -1; count < endPoint; count++) {
                 if (BluetoothPbapObexServer.sIsAborted) {
-                    ((ServerOperation)op).isAborted = true;
+                    ((ServerOperation)op).setAborted(true);
                     BluetoothPbapObexServer.sIsAborted = false;
                     break;
                 }
@@ -513,7 +513,7 @@ public class BluetoothPbapSimVcardManager {
                 composer.moveToPosition(offset -1, true);
             }
             if (BluetoothPbapObexServer.sIsAborted) {
-                ((ServerOperation)op).isAborted = true;
+                ((ServerOperation)op).setAborted(true);
                  BluetoothPbapObexServer.sIsAborted = false;
             }
             String vcard = composer.createOneEntry(vcardType21);

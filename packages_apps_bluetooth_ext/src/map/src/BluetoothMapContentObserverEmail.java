@@ -77,7 +77,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.obex.ResponseCodes;
+import com.android.obex.ResponseCodes;
 
 @TargetApi(19)
 public class BluetoothMapContentObserverEmail extends BluetoothMapContentObserver {

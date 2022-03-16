@@ -31,7 +31,7 @@ package com.android.bluetooth.avrcp;
 
 import java.io.IOException;
 
-import javax.obex.ServerSession;
+import com.android.obex.ServerSession;
 import android.annotation.NonNull;
 import com.android.bluetooth.BluetoothObexTransport;
 import com.android.internal.util.StateMachine;
