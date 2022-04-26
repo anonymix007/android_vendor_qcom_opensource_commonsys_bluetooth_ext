@@ -5528,7 +5528,7 @@ public final class Avrcp_ext {
                 }
                 if (action == KeyEvent.ACTION_DOWN && !rc_only_device) {
                     Log.d(TAG, "AVRCP Trigger Handoff");
-                    if(ApmConstIntf.getQtiLeAudioEnabled()) {
+                    if(/*ApmConstIntf.getQtiLeAudioEnabled()*/true) {
                         ActiveDeviceManagerServiceIntf activeDeviceManager = ActiveDeviceManagerServiceIntf.get();
                         activeDeviceManager.setActiveDevice(device,
                             ApmConstIntf.AudioFeatures.MEDIA_AUDIO, true);
