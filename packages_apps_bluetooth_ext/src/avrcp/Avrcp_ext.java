@@ -5036,8 +5036,11 @@ public final class Avrcp_ext {
             if((rspStatus == AvrcpConstants_ext.RSP_NO_ERROR) && ((mA2dpService != null) &&
                     !Objects.equals(mA2dpService.getActiveDevice(), device))) {
                 Log.d(TAG, "Trigger Handoff by playItem");
-                if(ApmConstIntf.getQtiLeAudioEnabled()) {
-                    ActiveDeviceManagerServiceIntf activeDeviceManager = ActiveDeviceManagerServiceIntf.get();
+
+                if (ApmConstIntf.getQtiLeAudioEnabled() ||
+                    ApmConstIntf.getAospLeaEnabled()) {
+                    ActiveDeviceManagerServiceIntf activeDeviceManager =
+                                     ActiveDeviceManagerServiceIntf.get();
                     activeDeviceManager.setActiveDevice(device,
                         ApmConstIntf.AudioFeatures.MEDIA_AUDIO, true);
                 } else {
@@ -5421,11 +5424,12 @@ public final class Avrcp_ext {
                 if (is_active) {
                     if (((passthrough && action == KeyEvent.ACTION_DOWN) ||
                          playitem)&& !rc_only_device) {
-                        if (ApmConstIntf.getQtiLeAudioEnabled()) {
+                        if (ApmConstIntf.getQtiLeAudioEnabled() ||
+                            ApmConstIntf.getAospLeaEnabled()) {
                             ActiveDeviceManagerServiceIntf activeDeviceManager =
-                                                 ActiveDeviceManagerServiceIntf.get();
+                                             ActiveDeviceManagerServiceIntf.get();
                             activeDeviceManager.setActiveDevice(device,
-                                           ApmConstIntf.AudioFeatures.MEDIA_AUDIO, false);
+                                ApmConstIntf.AudioFeatures.MEDIA_AUDIO, false);
                         }
                     }
                     return true;
@@ -5557,8 +5561,10 @@ public final class Avrcp_ext {
                 }
                 if (action == KeyEvent.ACTION_DOWN && !rc_only_device) {
                     Log.d(TAG, "AVRCP Trigger Handoff");
-                    if(/*ApmConstIntf.getQtiLeAudioEnabled()*/true) {
-                        ActiveDeviceManagerServiceIntf activeDeviceManager = ActiveDeviceManagerServiceIntf.get();
+                    if (ApmConstIntf.getQtiLeAudioEnabled() ||
+                        ApmConstIntf.getAospLeaEnabled()) {
+                        ActiveDeviceManagerServiceIntf activeDeviceManager =
+                                         ActiveDeviceManagerServiceIntf.get();
                         activeDeviceManager.setActiveDevice(device,
                             ApmConstIntf.AudioFeatures.MEDIA_AUDIO, true);
                     } else {
