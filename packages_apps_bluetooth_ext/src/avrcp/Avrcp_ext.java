@@ -2424,6 +2424,7 @@ public final class Avrcp_ext {
             index = getIndexForDevice(device);
         }
 
+        boolean isInactivePlayer = false;
         if (newState != null && newState.getState() != PlaybackState.STATE_BUFFERING
                  && newState.getState() != PlaybackState.STATE_NONE) {
             long newQueueId = MediaSession.QueueItem.UNKNOWN_ID;
@@ -2431,6 +2432,9 @@ public final class Avrcp_ext {
             Log.v(TAG, "Media update: id " + mLastQueueId + "➡" + newQueueId + "? "
                             + currentAttributes.toRedactedString() + " : "
                             + mMediaAttributes.toRedactedString());
+
+            isInactivePlayer = (newQueueId == -1) && (mLastQueueId == -1) &&
+                               (newState.getPosition() == PlaybackState.PLAYBACK_POSITION_UNKNOWN);
 
             // Update available/addressed player for current active device, but cached the player
             // update for inactive device until device switch and inactive device become active.
@@ -2494,9 +2498,11 @@ public final class Avrcp_ext {
                 }
             }
         } else {
+            isInactivePlayer = true;
             Log.i(TAG, "Skipping update due to invalid playback state");
         }
 
+        Log.w(TAG,"updateCurrentMediaState: isInactivePlayer = " + isInactivePlayer);
         if (device == null || updateA2dpPlayState) {
             if (device == null && newState != null && (newState.getState() ==
                     PlaybackState.STATE_NONE) &&
@@ -2511,6 +2517,12 @@ public final class Avrcp_ext {
                             " skip updating playback state");
             } else {
                 updatePlaybackState(newState, device);
+                MediaControlManagerIntf mMediaControlManager =
+                        MediaControlManagerIntf.get();
+                if (mMediaControlManager != null && newState != null && !isInactivePlayer) {
+                    mMediaControlManager.onPlaybackStateChanged(newState);
+                    Log.w(TAG, "updated player state = " + newState + "to MCP module also");
+                }
             }
         }
 
