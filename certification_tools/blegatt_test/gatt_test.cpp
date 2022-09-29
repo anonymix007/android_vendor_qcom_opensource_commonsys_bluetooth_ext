@@ -122,7 +122,7 @@ typedef struct {
 #define L2CAP_LE_DEFAULT_MPS 230
 #define L2CAP_LE_MAX_CREDIT 65535
 #define L2CAP_LE_DEFAULT_CREDIT 1
-#define LE_CHAR_MAX_LEN_VAL 500
+#define LE_CHAR_MAX_LEN_VAL 512
 
 /************************************************************************************
 **  Local type definitions
@@ -418,6 +418,16 @@ static void connect_cb(int conn_id, int status, int client_if, const RawAddress&
 
 }
 
+static void subrate_change_cb(int conn_id, uint16_t subrate_factor,
+                              uint16_t latency, uint16_t cont_num,
+                              uint16_t timeout, uint8_t status)
+{
+    printf("%s: conn_id=0x%x, status=%d, subrate_factor=%d,"
+           "latency=%d, cont_num=%d, timeout=%d \n",  __FUNCTION__,
+           conn_id, status, subrate_factor, latency, cont_num, timeout);
+
+}
+
 static btgatt_client_callbacks_t sGattClient_cb =
 {
     register_client_cb,
@@ -439,8 +449,8 @@ static btgatt_client_callbacks_t sGattClient_cb =
     NULL,
     NULL,
     NULL,
-    NULL, /* service_changed_cb */
-    NULL /* subrate_chg_cb */
+    NULL,
+    subrate_change_cb,
 };
 
 /************************************************************************************
@@ -1102,7 +1112,7 @@ static void request_write_cb(int conn_id, int trans_id, const RawAddress& bda,
             printf("%s:: Invalid attribute value length for long char/desc \n", __FUNCTION__);
             exec_write_status = invalid_attribute_value_len;
         }
-        if(offset > len_long_char)
+        if((offset > len_long_char) || ((curr_char_val_len > 0) && (offset > curr_char_val_len)))
         {
             printf("%s:: Invalid offset for long char/desc \n", __FUNCTION__);
             exec_write_status = invalid_offset;
@@ -1600,6 +1610,7 @@ void do_le_client_connect (char *p);
 void do_le_client_connect_ext (char *p);
 void do_le_client_refresh (char *p);
 void do_le_conn_param_update(char *p);
+void do_le_conn_subrate_req(char *p);
 void do_le_client_connect_auto (char *p);
 void do_le_client_disconnect (char *p);
 void do_le_client_disconnect_ext (char *p);
@@ -1679,6 +1690,7 @@ const t_cmd console_cmd_list[] =
     { "c_connect_ext", do_le_client_connect_ext, ":: transport-type<0,1...> , connId, BdAddr<00112233445566> ", 0 },
     { "c_refresh", do_le_client_refresh, ":: BdAddr<00112233445566>", 0 },
     { "c_conn_param_update", do_le_conn_param_update, ":: min_interval(hex), max_interval(hex), latency(hex), timeout(hex), BdAddr<00112233445566>", 0 },
+    { "c_conn_subrate_req", do_le_conn_subrate_req, ":: subrate_min(hex), subrate_max(hex), max_latency(hex), cont_num(hex), timeout(hex), BdAddr<00112233445566>", 0 },
     { "c_connect_auto", do_le_client_connect_auto, ":: transport-type<0,1...> , BdAddr<00112233445566>", 0 },
     { "c_disconnect", do_le_client_disconnect, ":: transport-type<0,1...>, BdAddr<00112233445566>", 0 },
     { "c_disconnect_ext", do_le_client_disconnect_ext, ":: connId, transport-type<0,1...>, BdAddr<00112233445566>", 0 },
@@ -2066,6 +2078,8 @@ static bt_callbacks_t bt_callbacks = {
     ssp_request_cb, /* ssp_request_cb  */
     bond_state_changed_cb, /*bond_state_changed_cb */
     NULL, /* address_consolidate_cb */
+    // KEYSTONE(I4f315415a2c2db38acf9a4a7c839633136e004fe,b/244773044)
+    NULL, /* le_address_associate_cb  */
     acl_state_changed, /* acl_state_changed_cb */
     NULL, /* thread_evt_cb */
     dut_mode_recv, /*dut_mode_recv_cb */
@@ -2691,6 +2705,29 @@ void do_le_conn_param_update(char *p)
 
     Ret = sGattIfaceScan->client->conn_parameter_update(bd_addr, min_interval,
                 max_interval, latency, timeout, 0, 0);
+    printf("%s:: Ret=%d \n", __FUNCTION__, Ret);
+
+}
+
+void do_le_conn_subrate_req(char *p)
+{
+    bool        Ret;
+    RawAddress bd_addr = {{0}};
+    int subrate_min  = 5;
+    int subrate_max = 10;
+    int max_latency = 0;
+    int cont_num = 0;
+    int timeout = 2000;
+
+    subrate_min  =  get_hex(&p, -1);
+    subrate_max  =  get_hex(&p, -1);
+    max_latency  =  get_hex(&p, -1);
+    cont_num     =  get_hex(&p, -1);
+    timeout      =  get_hex(&p, -1);
+    if(FALSE == GetBdAddr(p, &bd_addr))    return;
+
+    Ret = sGattIfaceScan->client->subrate_request(bd_addr, subrate_min,
+                subrate_max, max_latency, cont_num, timeout);
     printf("%s:: Ret=%d \n", __FUNCTION__, Ret);
 
 }
