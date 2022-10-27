@@ -593,7 +593,7 @@ static void bond_state_changed_cb(bt_status_t status, RawAddress *remote_bd_addr
     g_PairState = state;
 }
 
-static void acl_state_changed(bt_status_t status, RawAddress *remote_bd_addr, bt_acl_state_t state, int transport_link_type, bt_hci_error_code_t hci_reason)
+static void acl_state_changed(bt_status_t status, RawAddress *remote_bd_addr, bt_acl_state_t state, int transport_link_type, bt_hci_error_code_t hci_reason, bt_conn_direction_t direction)
 {
 }
 
@@ -623,7 +623,8 @@ static bt_callbacks_t bt_callbacks = {
     NULL, /* link_quality_report_cb */
     NULL,  /* generate_local_oob_data_cb */
     NULL, /* switch_buffer_size_cb */
-    NULL /* switch_codec_cb */
+    NULL, /* switch_codec_cb */
+    NULL
 };
 
 static bool set_wake_alarm(uint64_t delay_millis, bool should_wake, alarm_cb cb, void *data) {
