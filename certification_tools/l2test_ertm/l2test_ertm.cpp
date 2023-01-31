@@ -618,7 +618,6 @@ static bt_callbacks_t bt_callbacks = {
     acl_state_changed, /* acl_state_changed_cb */
     NULL, /* thread_evt_cb */
     dut_mode_recv, /*dut_mode_recv_cb */
-    NULL, /*le_test_mode_cb*/
     NULL, /*energy_info_cb */
     NULL, /* link_quality_report_cb */
     NULL,  /* generate_local_oob_data_cb */
