@@ -589,14 +589,14 @@ static void ssp_request_cb(RawAddress *remote_bd_addr, bt_bdname_t *bd_name,
 
 static void bond_state_changed_cb(bt_status_t status, RawAddress *remote_bd_addr, bt_bond_state_t state, int fail_reason)
 {
-
     g_PairState = state;
 }
 
-static void acl_state_changed(bt_status_t status, RawAddress *remote_bd_addr, bt_acl_state_t state, int transport_link_type, bt_hci_error_code_t hci_reason, bt_conn_direction_t direction)
+static void acl_state_changed(bt_status_t status, RawAddress *remote_bd_addr, bt_acl_state_t state,
+                              int transport_link_type, bt_hci_error_code_t hci_reason,
+                              bt_conn_direction_t direction, uint16_t acl_handle)
 {
 }
-
 
 static void dut_mode_recv(uint16_t opcode, uint8_t *buf, uint8_t len)
 {
