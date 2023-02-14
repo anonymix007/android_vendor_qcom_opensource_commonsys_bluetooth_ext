@@ -355,7 +355,7 @@ static void le_high_priority_mode_callback(uint8_t status,
 }
 
 static void get_afh_map_callback(std::vector<uint8_t> afh_map_data,
-                                 uint16_t length, uint8_t afh_mode) {
+                                 uint16_t length, uint8_t afh_mode, uint8_t status) {
   CallbackEnv sCallbackEnv(__func__);
   if (!sCallbackEnv.valid()) return;
   ALOGE("%s Length: %d", __FUNCTION__, length);
@@ -371,7 +371,7 @@ static void get_afh_map_callback(std::vector<uint8_t> afh_map_data,
 
   sCallbackEnv->CallVoidMethod(mCallbacksObj,
                                method_afhMapCallback, afh_map.get(),
-                               (jint)length, (jint)afh_mode);
+                               (jint)length, (jint)afh_mode, (jint)status);
 
 }
 
@@ -417,7 +417,7 @@ static void classInitNative(JNIEnv* env, jclass clazz) {
     method_leHighPriorityModeCallback = env->GetMethodID(
       clazz, "leHighPriorityModeCallback", "([BIZ)V");
     method_afhMapCallback = env->GetMethodID(
-      clazz, "afhMapCallback", "([BII)V");
+      clazz, "afhMapCallback", "([BIII)V");
     method_afhMapStatusCallback = env->GetMethodID(
       clazz, "afhMapStatusCallback", "(II)V");
     ALOGI("%s: succeeds", __FUNCTION__);
