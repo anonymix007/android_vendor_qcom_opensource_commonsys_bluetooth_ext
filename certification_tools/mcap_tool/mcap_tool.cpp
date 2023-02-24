@@ -728,12 +728,6 @@ static void acl_state_changed(bt_status_t status, RawAddress *remote_bd_addr, bt
     );
 }
 
-
-static void dut_mode_recv(uint16_t opcode, uint8_t *buf, uint8_t len)
-{
-    bdt_log("DUT MODE RECV : NOT IMPLEMENTED");
-}
-
 static void le_test_mode(bt_status_t status, uint16_t packet_count)
 {
     bdt_log("LE TEST MODE END status:%s number_of_packets:%d", dump_bt_status(status), packet_count);
@@ -751,7 +745,6 @@ static bt_callbacks_t bt_callbacks = {
     bond_state_changed_cb, /*bond_state_changed_cb */
     acl_state_changed, /* acl_state_changed_cb */
     NULL, /* thread_evt_cb */
-    dut_mode_recv, /*dut_mode_recv_cb */
 
   //    NULL, /*authorize_request_cb */
 #if BLE_INCLUDED == TRUE
@@ -837,24 +830,6 @@ void bdt_disable(void)
         return;
     }
     status = (bt_status_t)sBtInterface->disable();
-
-    check_return_status(status);
-}
-void bdt_dut_mode_configure(char *p)
-{
-    int32_t mode = -1;
-
-    bdt_log("BT DUT MODE CONFIGURE");
-    if (!bt_enabled) {
-        bdt_log("Bluetooth must be enabled for test_mode to work.");
-        return;
-    }
-    mode = get_signed_int(&p, mode);
-    if ((mode != 0) && (mode != 1)) {
-        bdt_log("Please specify mode: 1 to enter, 0 to exit");
-        return;
-    }
-    status = (bt_status_t)sBtInterface->dut_mode_configure(mode);
 
     check_return_status(status);
 }

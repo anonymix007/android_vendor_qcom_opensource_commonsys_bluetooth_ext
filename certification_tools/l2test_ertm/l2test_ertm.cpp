@@ -598,11 +598,6 @@ static void acl_state_changed(bt_status_t status, RawAddress *remote_bd_addr, bt
 {
 }
 
-static void dut_mode_recv(uint16_t opcode, uint8_t *buf, uint8_t len)
-{
-    printf("DUT MODE RECEIVE : NOT IMPLEMENTED\n");
-}
-
 static bt_callbacks_t bt_callbacks = {
     sizeof(bt_callbacks_t),
     adapter_state_changed,
@@ -617,7 +612,6 @@ static bt_callbacks_t bt_callbacks = {
     NULL,
     acl_state_changed, /* acl_state_changed_cb */
     NULL, /* thread_evt_cb */
-    dut_mode_recv, /*dut_mode_recv_cb */
     NULL, /*energy_info_cb */
     NULL, /* link_quality_report_cb */
     NULL,  /* generate_local_oob_data_cb */
