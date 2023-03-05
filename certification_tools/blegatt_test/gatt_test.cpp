@@ -2545,9 +2545,9 @@ void do_le_send_connect_req(int client_if, RawAddress bd_addr, int transport, bo
     {
         //TODO need to add phy parameter as 0x07 for connection to all types of Phys
         if (is_ext)
-            Ret = sGattIfaceScan->client->connect(client_if, bd_addr, TRUE, transport, FALSE, 0x01);
+            Ret = sGattIfaceScan->client->connect(client_if, bd_addr, 0, TRUE, transport, FALSE, 0x01);
         else
-            Ret = sGattIfaceScan->client->connect(g_client_if_scan, bd_addr, TRUE, transport, FALSE, 0x01);
+            Ret = sGattIfaceScan->client->connect(g_client_if_scan, bd_addr, 0, TRUE, transport, FALSE, 0x01);
     }
     else if(transport == BT_TRANSPORT_BR_EDR) {
         //Outgoing Connection
@@ -2662,7 +2662,7 @@ void do_le_client_connect_auto (char *p)
 
     if(Btif_gatt_layer)
     {
-        Ret = sGattIfaceScan->client->connect(g_client_if_scan, bd_addr, FALSE, transport, FALSE, 0x01);
+        Ret = sGattIfaceScan->client->connect(g_client_if_scan, bd_addr, 0, FALSE, transport, FALSE, 0x01);
     }
     else
     {
