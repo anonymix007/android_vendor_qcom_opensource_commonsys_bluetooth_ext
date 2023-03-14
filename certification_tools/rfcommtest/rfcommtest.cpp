@@ -396,7 +396,6 @@ void do_quit(char *p);
 void do_init(char *p);
 void do_enable(char *p);
 void do_disable(char *p);
-void do_dut_mode_configure(char *p);
 void do_cleanup(char *p);
 void do_rfcomm(char *p);
 void do_rfc_con( char *p);
@@ -428,7 +427,6 @@ const t_cmd console_cmd_list[] =
      /* Init and Cleanup shall be called automatically */
     { "enable", do_enable, ":: enables bluetooth", 0 },
     { "disable", do_disable, ":: disables bluetooth", 0 },
-    { "dut_mode_configure", do_dut_mode_configure, ":: DUT mode - 1 to enter,0 to exit", 0 },
     /* add here */
     { "rfcomm", do_rfcomm, "rfcomm test", 0},
     { "server_rfcomm", do_rfcomm_server ,"rfcomm server test", 0},
@@ -572,11 +570,6 @@ static void adapter_state_changed(bt_state_t state)
     }
 }
 
-static void dut_mode_recv(uint16_t opcode, uint8_t *buf, uint8_t len)
-{
-    bdt_log("DUT MODE RECV : NOT IMPLEMENTED");
-}
-
 static void le_test_mode(bt_status_t status, uint16_t packet_count)
 {
     bdt_log("LE TEST MODE END status:%s number_of_packets:%d", dump_bt_status(status), packet_count);
@@ -609,7 +602,6 @@ static bt_callbacks_t bt_callbacks = {
     NULL,                        /* acl_state_changed_cb */
     NULL,
     NULL,                        /* thread_evt_cb */
-    dut_mode_recv,               /*dut_mode_recv_cb */
 //    NULL,                      /*authorize_request_cb */
 #if BLE_INCLUDED == TRUE
     le_test_mode,                /* le_test_mode_cb */
@@ -753,24 +745,6 @@ void bdt_disable(void)
 
     check_return_status(status);
 }
-void bdt_dut_mode_configure(char *p)
-{
-    int32_t mode = -1;
-
-    bdt_log("BT DUT MODE CONFIGURE");
-    if (!bt_enabled) {
-        bdt_log("Bluetooth must be enabled for test_mode to work.");
-        return;
-    }
-    mode = get_signed_int(&p, mode);
-    if ((mode != 0) && (mode != 1)) {
-        bdt_log("Please specify mode: 1 to enter, 0 to exit");
-        return;
-    }
-    status = (bt_status_t)sBtInterface->dut_mode_configure(mode);
-
-    check_return_status(status);
-}
 
 #define HCI_LE_RECEIVER_TEST_OPCODE 0x201D
 #define HCI_LE_TRANSMITTER_TEST_OPCODE 0x201E
@@ -827,10 +801,6 @@ void do_enable(char *p)
 void do_disable(char *p)
 {
     bdt_disable();
-}
-void do_dut_mode_configure(char *p)
-{
-    bdt_dut_mode_configure(p);
 }
 
 void do_cleanup(char *p)
