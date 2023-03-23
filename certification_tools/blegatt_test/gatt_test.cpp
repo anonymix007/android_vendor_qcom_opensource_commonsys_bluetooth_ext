@@ -3267,7 +3267,7 @@ void do_le_server_add_custom_service(char *p)
 
     std::vector<btgatt_db_element_t> service;
     //1st service
-    btgatt_db_element_t svc1 = {0};
+    btgatt_db_element_t svc1 = {};
     svc1.uuid = Uuid::FromString(uuid_str, &is_valid);
     svc1.type = BTGATT_DB_PRIMARY_SERVICE;
     service.push_back(svc1);
