@@ -1687,7 +1687,7 @@ void do_le_client_connect(char *p)
     if(Btif_gatt_layer)
     {
         //TODO need to add phy parameter as 0x07 for connection to all types of Phys
-        Ret = sGattIfaceScan->client->connect(g_client_if_scan, bd_addr, TRUE, transport, FALSE, 0x01);
+        Ret = sGattIfaceScan->client->connect(g_client_if_scan, bd_addr, 0, TRUE, transport, FALSE, 0x01);
     }
     else if(transport == BT_TRANSPORT_BR_EDR) {
         //Outgoing Connection
