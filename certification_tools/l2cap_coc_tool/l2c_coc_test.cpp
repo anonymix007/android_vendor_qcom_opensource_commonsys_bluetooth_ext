@@ -17,6 +17,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
+ *  ​​​​​Changes from Qualcomm Innovation Center are provided under the following license:
+ *  Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ *  SPDX-License-Identifier: BSD-3-Clause-Clear
+ *
  ******************************************************************************/
 
 
@@ -1764,6 +1768,7 @@ void do_start_adv_set(char *p)
     PeriodicAdvertisingParameters periodic_params;
     periodic_params.enable = false;
     std::vector<uint8_t> periodic_data;
+    std::vector<uint8_t> periodic_data_enc;
     int interval;
 
     //Adv params
@@ -1796,12 +1801,15 @@ void do_start_adv_set(char *p)
     //adv data
     uint8_t arr[] ={10,9,'G','A','T','T','-','T','O','O','L'};
     std::vector<uint8_t> adv_data(arr, arr + (sizeof(arr)/sizeof(arr[0])));
+    std::vector<uint8_t> adv_data_enc;
     std::vector<uint8_t> scan_resp;
+    std::vector<uint8_t> scan_resp_enc;
+    std::vector<uint8_t> enc_key_vec;
     scan_resp = adv_data;
 
     sGattIfaceScan->advertiser->StartAdvertisingSet(reg_inst_id, base::Bind(&StartAdvertisingSetCb),
-            params, adv_data, scan_resp, periodic_params, periodic_data,
-            0 , 0 ,  base::Bind(DoNothing2));
+            params, adv_data, adv_data_enc, scan_resp, scan_resp_enc, periodic_params, periodic_data,
+            periodic_data_enc, 0 , 0 , enc_key_vec, base::Bind(DoNothing2));
 }
 void do_unregister_adv_set(char *p)
 {
@@ -2527,10 +2535,12 @@ static void do_ecfc_start(char* p) {
 
 void ecfc_start_adv() {
     std::vector<uint8_t> scan_resp;
+    std::vector<uint8_t> scan_resp_enc;
     AdvertiseParameters params;
     PeriodicAdvertisingParameters periodic_params;
     periodic_params.enable = false;
     std::vector<uint8_t> periodic_data;
+    std::vector<uint8_t> periodic_data_enc;
     int interval;
 
     //Adv params
@@ -2563,10 +2573,12 @@ void ecfc_start_adv() {
     //adv data
     uint8_t arr[] ={10,9,'G','A','T','T','-','T','O','O','L'};
     std::vector<uint8_t> adv_data(arr, arr + (sizeof(arr)/sizeof(arr[0])));
+    std::vector<uint8_t> adv_data_enc;
+    std::vector<uint8_t> enc_key_vec;
 
     sGattIfaceScan->advertiser->StartAdvertisingSet(reg_inst_id, base::Bind(&StartAdvertisingSetCb),
-            params, adv_data, scan_resp, periodic_params, periodic_data,
-            0 , 0 ,  base::Bind(DoNothing2));
+            params, adv_data, adv_data_enc, scan_resp, scan_resp_enc, periodic_params, periodic_data,
+            periodic_data_enc, 0 , 0 , enc_key_vec, base::Bind(DoNothing2));
 }
 
 static void ecfc_l2cap_server()
