@@ -147,7 +147,8 @@ public class AvrcpPlayerAppSettings {
         if (!mIsRegisterd) {
             try {
                 mIsRegisterd = true;
-                mContext.registerReceiver(mIntentReceiver, intentFilter);
+                mContext.registerReceiver(mIntentReceiver, intentFilter,
+                                          Context.RECEIVER_EXPORTED);
             } catch (Exception e) {
                 Log.e(TAG,"Unable to register Avrcp receiver", e);
             }
