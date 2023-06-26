@@ -1116,11 +1116,6 @@ static void request_write_cb(int conn_id, int trans_id, const RawAddress& bda,
             printf("%s:: Invalid attribute value length for long char/desc \n", __FUNCTION__);
             exec_write_status = invalid_attribute_value_len;
         }
-        if((offset > len_long_char) || ((curr_char_val_len > 0) && (offset > curr_char_val_len)))
-        {
-            printf("%s:: Invalid offset for long char/desc \n", __FUNCTION__);
-            exec_write_status = invalid_offset;
-        }
     }
     else
     {
