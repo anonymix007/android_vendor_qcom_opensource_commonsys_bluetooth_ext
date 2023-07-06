@@ -141,6 +141,8 @@ static void register_server_cb(int status, int server_if, const Uuid& app_uuid);
 
 static unsigned char main_done = 0;
 static int status;
+
+bool sr_gaw_bi_09 = false;
 typedef struct
 {
     uint16_t      result;                 /* Only used in confirm messages */
@@ -1115,6 +1117,14 @@ static void request_write_cb(int conn_id, int trans_id, const RawAddress& bda,
         {
             printf("%s:: Invalid attribute value length for long char/desc \n", __FUNCTION__);
             exec_write_status = invalid_attribute_value_len;
+        }
+
+        if(sr_gaw_bi_09)
+        {
+          if((offset + value_count) > len_short_char) {
+            printf("%s:: Invalid offset for short char/desc \n", __FUNCTION__);
+            exec_write_status = invalid_offset;
+          }
         }
     }
     else
@@ -3146,6 +3156,11 @@ void do_le_sr_register(int idx, bool eatt_support)
         case 5:
             uuid = Uuid::FromString("4422A00C-0000-0000-0123-456789ABCDEF", &is_valid);//4422A00C-0000-0000-0123-456789ABCDEF
             bt_uuid = Uuid::FromString("4422A00C-0000-0000-0123-456789ABCDEF", &is_valid);//4422A00C-0000-0000-0123-456789ABCDEF*/
+            break;
+        case 6:
+            uuid = Uuid::FromString("0000A00C-0000-0000-0123-456789ABCDEF", &is_valid);//0000A00C-0000-0000-0123-456789ABCDEF
+            bt_uuid = Uuid::FromString("0000A00C-0000-0000-0123-456789ABCDEF", &is_valid); //0000A00C-0000-0000-0123-456789ABCDEF
+            sr_gaw_bi_09 = true;
             break;
         default:
             printf("%s:: ERROR: no matching uuid \n", __FUNCTION__);
