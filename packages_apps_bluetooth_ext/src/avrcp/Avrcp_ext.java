@@ -2524,9 +2524,31 @@ public final class Avrcp_ext {
                 updatePlaybackState(newState, device);
                 MediaControlManagerIntf mMediaControlManager =
                         MediaControlManagerIntf.get();
+                ActiveDeviceManagerServiceIntf activeDeviceManager =
+                                     ActiveDeviceManagerServiceIntf.get();
+                BluetoothDevice activeAbsAddr = null;
+                boolean isAdmStable = false;
+                if (activeDeviceManager != null) {
+                    activeAbsAddr = activeDeviceManager.getActiveAbsoluteDevice(
+                                                           ApmConstIntf.AudioFeatures.MEDIA_AUDIO);
+                    isAdmStable = activeDeviceManager.isStableState(
+                                                           ApmConstIntf.AudioFeatures.MEDIA_AUDIO);
+                }
+                Log.d(TAG,"isAdmStable = " + isAdmStable + " activeAbsAddr = " + activeAbsAddr +
+                           " device = " + device);
+
                 if (mMediaControlManager != null && newState != null && !isInactivePlayer) {
-                    mMediaControlManager.onPlaybackStateChanged(newState);
-                    Log.w(TAG, "updated player state = " + newState + "to MCP module also");
+                    if (!isAdmStable && (newState.getState() == PlaybackState.STATE_PAUSED)) {
+                        Log.w(TAG, "ADM in transition and newState is PAUSED, ignore MCP update");
+                    } else if (activeAbsAddr != null && device != null
+                            && !device.equals(activeAbsAddr)
+                            && (newState.getState() == PlaybackState.STATE_PAUSED)) {
+                        Log.w(TAG, "ADM abs active device is different from the device," +
+                                       " ignore MCP update");
+                    } else {
+                        mMediaControlManager.onPlaybackStateChanged(newState);
+                        Log.w(TAG, "updated player state = " + newState + "to MCP module also");
+                    }
                 }
             }
         }
