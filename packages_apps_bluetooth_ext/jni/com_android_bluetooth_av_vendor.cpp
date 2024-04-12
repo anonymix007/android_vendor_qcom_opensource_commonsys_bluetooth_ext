@@ -231,11 +231,15 @@ static JNINativeMethod sMethods[] = {
     { "SuspendIndRspNative", "([BZ)I", (void*)SuspendIndRspNative},
 };
 
+static bool cMethods[NELEM(sMethods)];
+
+extern int jniRegisterNativeMethodsSafe(JNIEnv* env, const char *className, JNINativeMethod *methods, bool *cursedMethods, size_t count);
+
 int register_com_android_bluetooth_a2dp_sink_vendor_service(JNIEnv* env)
 {
     ALOGE("%s:",__FUNCTION__);
-    return jniRegisterNativeMethods(env, "com/android/bluetooth/a2dpsink/A2dpSinkVendorService",
-                                    sMethods, NELEM(sMethods));
+    return jniRegisterNativeMethodsSafe(env, "com/android/bluetooth/a2dpsink/A2dpSinkVendorService",
+                                    sMethods, cMethods, NELEM(sMethods));
 }
 
 } /* namespace android */

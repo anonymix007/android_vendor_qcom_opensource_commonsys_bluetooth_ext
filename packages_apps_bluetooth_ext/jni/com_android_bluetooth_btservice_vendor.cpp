@@ -368,7 +368,6 @@ static void get_afh_map_callback(std::vector<uint8_t> afh_map_data,
   }
   sCallbackEnv->SetByteArrayRegion(afh_map.get(), 0, afh_map_data.size(),
       (jbyte*)afh_map_data.data());
-
   sCallbackEnv->CallVoidMethod(mCallbacksObj,
                                method_afhMapCallback, afh_map.get(),
                                (jint)length, (jint)afh_mode, (jint)status);
@@ -380,7 +379,6 @@ static void set_afh_map_callback(uint8_t status, uint8_t transport) {
   CallbackEnv sCallbackEnv(__func__);
   if (!sCallbackEnv.valid()) return;
   ALOGE("%s status: %d Transport: %d", __FUNCTION__, status, transport);
-
   sCallbackEnv->CallVoidMethod(mCallbacksObj,
                                method_afhMapStatusCallback,(jint)status,
                                (jint)transport);
@@ -1041,14 +1039,10 @@ static JNINativeMethod sMethods[] = {
     {"interopDatabaseAddRemoveNameNative", "(ZLjava/lang/String;Ljava/lang/String;)V",
         (void*)interopDatabaseAddRemoveNameNative},
     {"getRemoteLeServicesNative", "([BI)Z", (void*)getRemoteLeServicesNative},
-    {"setLeHighPriorityModeNative", "(Ljava/lang/String;Z)I",
-        (void*) setLeHighPriorityModeNative},
-    {"isLeHighPriorityModeSetNative", "(Ljava/lang/String;)Z",
-        (void*) isLeHighPriorityModeSetNative},
-    {"setAfhChannelMapNative", "(II[B)Z",
-        (void*) setAfhChannelMapNative},
-    {"getAfhChannelMapNative", "(Ljava/lang/String;I)Z",
-        (void*) getAfhChannelMapNative},
+    {"setLeHighPriorityModeNative", "(Ljava/lang/String;Z)I", (void*) setLeHighPriorityModeNative},
+    {"isLeHighPriorityModeSetNative", "(Ljava/lang/String;)Z", (void*) isLeHighPriorityModeSetNative},
+    {"setAfhChannelMapNative", "(II[B)Z", (void*) setAfhChannelMapNative},
+    {"getAfhChannelMapNative", "(Ljava/lang/String;I)Z", (void*) getAfhChannelMapNative},
 };
 
 int load_bt_configstore_lib() {
@@ -1087,11 +1081,69 @@ int load_bt_configstore_lib() {
     return -EINVAL;
 }
 
+static bool cMethods[NELEM(sMethods)];
+
+int jniRegisterNativeMethodsSafe(JNIEnv* env, const char *className, JNINativeMethod *methods, bool *cursedMethods, size_t count) {
+    jclass Vendor = env->FindClass(className);
+
+    if (Vendor == NULL) {
+        env->ExceptionClear();
+        ALOGW("%s: No such class: %s", __FUNCTION__, className);
+        return 0;
+    }
+
+    jclass clazz = env->FindClass("java/lang/Class");
+    jclass methodClass = env->FindClass("java/lang/reflect/Method");
+
+    jmethodID getDeclaredMethods = env->GetMethodID(clazz, "getDeclaredMethods", "()[Ljava/lang/reflect/Method;");
+    jmethodID getName = env->GetMethodID(methodClass, "getName", "()Ljava/lang/String;");
+
+    jobjectArray jmethods = (jobjectArray)env->CallObjectMethod(Vendor, getDeclaredMethods);
+
+    jsize numMethods = env->GetArrayLength(jmethods);
+
+    for (jsize i = 0; i < numMethods; i++) {
+		jobject method = env->GetObjectArrayElement(jmethods, i);
+		jstring jname = (jstring) env->CallObjectMethod(method, getName);
+
+		const char *name = env->GetStringUTFChars(jname, 0);
+
+		ALOGV("%s: Found method %s", __FUNCTION__, name);
+
+		for (size_t j = 0; j < count; j++) {
+			if (strcmp(name, methods[j].name) == 0) {
+				ALOGW("%s: Found method %s at %d in cursedMethods", __FUNCTION__, name, j);
+				cursedMethods[j] = true;
+			}
+		}
+		env->ReleaseStringUTFChars(jname, name);
+        env->DeleteLocalRef(method);
+	}
+
+	for (size_t i = 0; i < count; i++) {
+		if (cursedMethods[i]) {
+			ALOGW("%s: Registering method %ss", __FUNCTION__, methods[i].name);
+            env->RegisterNatives(Vendor, &methods[i], 1);
+		}
+	}
+
+    env->DeleteLocalRef(jmethods);
+    env->DeleteLocalRef(clazz);
+    env->DeleteLocalRef(methodClass);
+    env->DeleteLocalRef(Vendor);
+
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+    return 0;
+}
+
 int register_com_android_bluetooth_btservice_vendor(JNIEnv* env)
 {
     ALOGE("%s:",__FUNCTION__);
-    return jniRegisterNativeMethods(env, "com/android/bluetooth/btservice/Vendor",
-                                    sMethods, NELEM(sMethods));
+    jniRegisterNativeMethodsSafe(env, "com/android/bluetooth/btservice/Vendor", sMethods, cMethods, NELEM(cMethods));
+    return 0;
 }
 
 } /* namespace android */
